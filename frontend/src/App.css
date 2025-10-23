@@ -1,0 +1,37 @@
+/* Minimal layout helpers overriding Vite defaults */
+#root {
+  max-width: none;
+}
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.muted { color: var(--muted); }
+
+.card { padding: 16px; }
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .page {
+    padding: 16px;
+  }
+  
+  .row {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,131 @@
+:root {
+  /* Minimal desktop-first palette inspired by ChatGPT */
+  --bg: #f7f7f8;
+  --panel: #ffffff;
+  --text: #11181c;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --accent: #10a37f; /* subtle green */
+  --accent-fore: #ffffff;
+
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  line-height: 1.5;
+  font-weight: 400;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Utility containers */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 12px;
+  }
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+/* Buttons */
+button {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+button:hover {
+  background: #f3f4f6;
+}
+button.btn-primary {
+  background: var(--accent);
+  color: var(--accent-fore);
+  border-color: transparent;
+}
+button.btn-primary:hover {
+  background: #0e8d6f;
+}
+
+/* Typography */
+h1, h2, h3, h4 {
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+p {
+  margin: 0 0 12px 0;
+  color: var(--muted);
+}
+
+/* Forms */
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+input[type="datetime-local"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.1);
+}
+
+@media (max-width: 480px) {
+  input[type="text"], 
+  input[type="email"], 
+  input[type="password"], 
+  input[type="datetime-local"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
