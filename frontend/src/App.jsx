@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext'
 import LoginPage from './pages/LoginPage'
 import LandingPage from './pages/LandingPage'
+import CitasPage from './pages/CitasPage'
 import Layout from './layout/Layout'
 import UserProfile from './components/UserProfile'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -61,10 +62,7 @@ function App() {
           element={
             <ProtectedRoute>
               <Layout pageTitle="Citas">
-                <div className="container">
-                  <h2>Gestión de Citas</h2>
-                  <p className="muted">Próximamente: Calendario y reservas</p>
-                </div>
+                <CitasPage />
               </Layout>
             </ProtectedRoute>
           } 
