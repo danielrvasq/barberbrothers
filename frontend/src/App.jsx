@@ -1,89 +1,108 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { useAuth } from './contexts/AuthContext'
-import LoginPage from './pages/LoginPage'
-import LandingPage from './pages/LandingPage'
-import CitasPage from './pages/CitasPage'
-import Layout from './layout/Layout'
-import UserProfile from './components/UserProfile'
-import ProtectedRoute from './components/ProtectedRoute'
-import './App.css'
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext";
+import LoginPage from "./pages/LoginPage";
+import LandingPage from "./pages/LandingPage";
+import CitasPage from "./pages/CitasPage";
+import BarbersPage from "./pages/BarbersPage";
+import InventoryPage from "./pages/InventoryPage";
+import ReportsPage from "./pages/ReportsPage";
+import Layout from "./components/layout/Layout";
+import UserProfile from "./components/common/UserProfile";
+import ProtectedRoute from "./components/common/ProtectedRoute";
 
 function App() {
-  const { user, loading } = useAuth()
+  const { user, loading, isAdmin } = useAuth();
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh' 
-      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
         <p>Cargando...</p>
       </div>
-    )
+    );
   }
 
   return (
     <div className="App">
       <Routes>
-        <Route 
-          path="/login" 
-          element={user ? <Navigate to="/" replace /> : <LoginPage />} 
-        />
-        
-        <Route 
-          path="/" 
+        <Route
+          path="/login"
           element={
-            <ProtectedRoute>
-              <Layout pageTitle="Inicio">
-                <LandingPage />
-              </Layout>
-            </ProtectedRoute>
-          } 
+            user ? (
+              <Navigate to={isAdmin() ? "/" : "/citas"} replace />
+            ) : (
+              <LoginPage />
+            )
+          }
         />
 
-        <Route 
-          path="/inventario" 
+        <Route
+          path="/"
           element={
             <ProtectedRoute>
+              {isAdmin() ? (
+                <Layout pageTitle="Inicio">
+                  <LandingPage />
+                </Layout>
+              ) : (
+                <Navigate to="/citas" replace />
+              )}
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/inventario"
+          element={
+            <ProtectedRoute adminOnly>
               <Layout pageTitle="Inventario">
-                <div className="container">
-                  <h2>Gestión de Inventario</h2>
-                  <p className="muted">Próximamente: CRUD de productos y stock</p>
-                </div>
+                <InventoryPage />
               </Layout>
             </ProtectedRoute>
-          } 
+          }
         />
 
-        <Route 
-          path="/citas" 
+        <Route
+          path="/citas"
           element={
             <ProtectedRoute>
               <Layout pageTitle="Citas">
                 <CitasPage />
               </Layout>
             </ProtectedRoute>
-          } 
+          }
         />
 
-        <Route 
-          path="/reportes" 
+        <Route
+          path="/barberos"
           element={
-            <ProtectedRoute>
-              <Layout pageTitle="Reportes">
-                <div className="container">
-                  <h2>Reportes y Estadísticas</h2>
-                  <p className="muted">Próximamente: Métricas y exportación</p>
-                </div>
+            <ProtectedRoute adminOnly>
+              <Layout pageTitle="Barberos">
+                <BarbersPage />
               </Layout>
             </ProtectedRoute>
-          } 
+          }
         />
 
-        <Route 
-          path="/admin" 
+        <Route
+          path="/reportes"
+          element={
+            <ProtectedRoute adminOnly>
+              <Layout pageTitle="Reportes">
+                <ReportsPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin"
           element={
             <ProtectedRoute adminOnly>
               <Layout pageTitle="Panel de Administración">
@@ -94,13 +113,22 @@ function App() {
                 </div>
               </Layout>
             </ProtectedRoute>
-          } 
+          }
         />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="*"
+          element={
+            user ? (
+              <Navigate to={isAdmin() ? "/" : "/citas"} replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
       </Routes>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
