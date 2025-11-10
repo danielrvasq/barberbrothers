@@ -51,7 +51,7 @@ export default function LoginPage() {
               />
             </svg>
           </div>
-          <h1 style={{ fontSize: 24, fontWeight: 700 }}>Barbería Brothers</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 700 }}>BarberBrothers</h1>
           <p className="muted">Sistema de Gestión Integral</p>
         </div>
 
