@@ -6,6 +6,15 @@ export default function UserProfile() {
 
   if (!user) return null;
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      // El error ya se maneja en AuthContext
+      console.log("Sesión cerrada");
+    }
+  };
+
   return (
     <div style={{ 
       padding: '16px', 
@@ -25,7 +34,7 @@ export default function UserProfile() {
         {isAdmin() && ' (Administrador)'}
       </div>
       <button 
-        onClick={signOut}
+        onClick={handleSignOut}
         style={{
           padding: '8px 16px',
           backgroundColor: '#dc3545',

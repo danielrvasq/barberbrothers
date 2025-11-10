@@ -127,3 +127,28 @@ export const getCitasByBarberAndDate = async (barberId, startDate, endDate) => {
 
   return { data, error };
 };
+
+/**
+ * Obtener todas las citas de un día específico (para validar disponibilidad)
+ */
+export const getCitasByDate = async (dateStr) => {
+  const startDate = `${dateStr}T00:00:00`;
+  const endDate = `${dateStr}T23:59:59`;
+
+  const { data, error } = await supabase
+    .from("appointments")
+    .select(
+      `
+      id,
+      barber_id,
+      start_at,
+      status
+    `
+    )
+    .gte("start_at", startDate)
+    .lte("start_at", endDate)
+    .in("status", ["scheduled", "confirmed"])
+    .order("start_at", { ascending: true });
+
+  return { data, error };
+};

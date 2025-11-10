@@ -16,8 +16,10 @@ function Layout({ children, pageTitle }) {
       await signOut();
       navigate("/login");
     } catch (e) {
+      // Si el error es porque no hay sesión, solo navegamos al login
       console.error("Error al cerrar sesión:", e);
-      alert("Error al cerrar sesión: " + e.message);
+      // Navegar al login de todas formas
+      navigate("/login");
     }
   };
 

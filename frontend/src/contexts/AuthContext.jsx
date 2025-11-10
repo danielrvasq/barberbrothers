@@ -141,10 +141,25 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error signing out:', error);
-      throw error;
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      // Si el error es porque no hay sesión, lo ignoramos
+      if (error && error.message !== 'Auth session missing!') {
+        console.error('Error al cerrar sesión:', error);
+        throw error;
+      }
+      
+      // Limpiar estado local independientemente del resultado
+      setUser(null);
+      setProfile(null);
+      
+      console.log('✅ Sesión cerrada correctamente');
+    } catch (error) {
+      // Si hay error de red u otro, al menos limpiamos el estado local
+      console.warn('⚠️ Error al cerrar sesión, limpiando estado local:', error);
+      setUser(null);
+      setProfile(null);
     }
   };
 

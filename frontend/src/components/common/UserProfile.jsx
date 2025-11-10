@@ -6,6 +6,15 @@ export default function UserProfile() {
   const { user, profile, signOut, isAdmin } = useAuth();
   if (!user) return null;
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      // El error ya se maneja en AuthContext, solo log aquí
+      console.log("Sesión cerrada");
+    }
+  };
+
   return (
     <div className="card" style={{ maxWidth: 420 }}>
       <div className="card-header">
@@ -24,7 +33,7 @@ export default function UserProfile() {
         </div>
       </div>
       <div className="card-footer">
-        <Button variant="danger" onClick={signOut}>
+        <Button variant="danger" onClick={handleSignOut}>
           Cerrar sesión
         </Button>
       </div>

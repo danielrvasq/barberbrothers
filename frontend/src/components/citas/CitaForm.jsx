@@ -5,6 +5,7 @@ import {
   checkAppointmentConflict,
 } from "../../lib/barbersService";
 import { getServices } from "../../lib/productsService";
+import { getCitasByDate } from "../../lib/citasService";
 import {
   validateAppointment,
   generateTimeSlots,
@@ -37,6 +38,10 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [unavailableSlots, setUnavailableSlots] = useState(new Set());
+  const [unavailableBarbers, setUnavailableBarbers] = useState(new Set());
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
+  const [appointmentsOfDay, setAppointmentsOfDay] = useState([]);
 
   // Cargar barberos y servicios
   useEffect(() => {
@@ -84,6 +89,35 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
     setSubmitting(false);
   }, [initialData]);
 
+  // Cargar citas del día cuando cambia la fecha
+  useEffect(() => {
+    const loadAppointmentsOfDay = async () => {
+      if (!dateStr) {
+        setAppointmentsOfDay([]);
+        return;
+      }
+
+      try {
+        const { data, error } = await getCitasByDate(dateStr);
+        if (error) {
+          console.error("Error cargando citas del día:", error);
+          setAppointmentsOfDay([]);
+        } else {
+          // Filtrar la cita actual si estamos editando
+          const filtered = initialData?.id
+            ? (data || []).filter(apt => apt.id !== initialData.id)
+            : (data || []);
+          setAppointmentsOfDay(filtered);
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        setAppointmentsOfDay([]);
+      }
+    };
+
+    loadAppointmentsOfDay();
+  }, [dateStr, initialData]);
+
   // Generar slots de tiempo cuando cambia la fecha
   useEffect(() => {
     if (dateStr) {
@@ -95,6 +129,100 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
     }
   }, [dateStr]);
 
+  // Verificar disponibilidad de horarios cuando se selecciona barbero + fecha
+  useEffect(() => {
+    const checkTimeSlotsAvailability = async () => {
+      if (!barberId || !dateStr || timeSlots.length === 0) {
+        setUnavailableSlots(new Set());
+        return;
+      }
+
+      setCheckingAvailability(true);
+      const unavailable = new Set();
+
+      try {
+        // Verificar cada slot de tiempo
+        for (const slot of timeSlots) {
+          // Construir timestamp manteniendo la zona horaria local
+          const localDate = new Date(`${dateStr}T${slot.start}:00`);
+          // Convertir a formato ISO pero ajustando el offset de zona horaria
+          const tzOffset = localDate.getTimezoneOffset() * 60000; // offset en milisegundos
+          const localISOTime = new Date(localDate.getTime() - tzOffset).toISOString().slice(0, -1);
+          const startAtISO = `${dateStr}T${slot.start}:00`;
+          
+          // Verificar disponibilidad del barbero en su horario de trabajo
+          const { data: isAvailable } = await checkBarberAvailability(
+            barberId,
+            startAtISO
+          );
+
+          // Verificar conflictos con citas existentes
+          const hasConflict = appointmentsOfDay.some(apt => {
+            const aptTime = new Date(apt.start_at).toTimeString().slice(0, 5);
+            return apt.barber_id === barberId && aptTime === slot.start;
+          });
+
+          if (!isAvailable || hasConflict) {
+            unavailable.add(slot.start);
+          }
+        }
+
+        setUnavailableSlots(unavailable);
+      } catch (err) {
+        console.error("Error verificando disponibilidad de horarios:", err);
+      } finally {
+        setCheckingAvailability(false);
+      }
+    };
+
+    checkTimeSlotsAvailability();
+  }, [barberId, dateStr, timeSlots, appointmentsOfDay]);
+
+  // Verificar disponibilidad de barberos cuando se selecciona hora + fecha
+  useEffect(() => {
+    const checkBarbersAvailability = async () => {
+      if (!timeStr || !dateStr || barbers.length === 0) {
+        setUnavailableBarbers(new Set());
+        return;
+      }
+
+      setCheckingAvailability(true);
+      const unavailable = new Set();
+
+      try {
+        // Construir timestamp en formato local (no UTC)
+        const startAtISO = `${dateStr}T${timeStr}:00`;
+
+        // Verificar cada barbero
+        for (const barber of barbers) {
+          // Verificar disponibilidad del barbero en su horario de trabajo
+          const { data: isAvailable } = await checkBarberAvailability(
+            barber.id,
+            startAtISO
+          );
+
+          // Verificar conflictos con citas existentes
+          const hasConflict = appointmentsOfDay.some(apt => {
+            const aptTime = new Date(apt.start_at).toTimeString().slice(0, 5);
+            return apt.barber_id === barber.id && aptTime === timeStr;
+          });
+
+          if (!isAvailable || hasConflict) {
+            unavailable.add(barber.id);
+          }
+        }
+
+        setUnavailableBarbers(unavailable);
+      } catch (err) {
+        console.error("Error verificando disponibilidad de barberos:", err);
+      } finally {
+        setCheckingAvailability(false);
+      }
+    };
+
+    checkBarbersAvailability();
+  }, [timeStr, dateStr, barbers, appointmentsOfDay]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -105,8 +233,8 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
       return;
     }
 
-    // Combinar fecha y hora
-    const startAtISO = new Date(`${dateStr}T${timeStr}:00`).toISOString();
+    // Combinar fecha y hora (formato local, no UTC)
+    const startAtISO = `${dateStr}T${timeStr}:00`;
 
     // Validar horario de negocio
     const validation = validateAppointment(barberId, startAtISO, service);
@@ -118,26 +246,20 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
     setSubmitting(true);
 
     try {
-      // Verificar disponibilidad del barbero
+      // Verificación final de seguridad (aunque las opciones están deshabilitadas)
       const { data: isAvailable } = await checkBarberAvailability(
         barberId,
         startAtISO
       );
-      if (!isAvailable) {
-        setError("El barbero no está disponible en este horario");
-        setSubmitting(false);
-        return;
-      }
-
-      // Verificar conflictos con otras citas
       const { data: hasConflict } = await checkAppointmentConflict(
         barberId,
         startAtISO,
         30,
         initialData?.id || null
       );
-      if (hasConflict) {
-        setError("Ya existe una cita en este horario");
+
+      if (!isAvailable || hasConflict) {
+        setError("El horario seleccionado ya no está disponible. Por favor selecciona otro.");
         setSubmitting(false);
         return;
       }
@@ -176,12 +298,39 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
           required
         >
           <option value="">Selecciona un barbero</option>
-          {barbers.map((barber) => (
-            <option key={barber.id} value={barber.id}>
-              {barber.name} {barber.specialty ? `- ${barber.specialty}` : ""}
-            </option>
-          ))}
+          {barbers.map((barber) => {
+            const isUnavailable = unavailableBarbers.has(barber.id);
+            return (
+              <option 
+                key={barber.id} 
+                value={barber.id}
+                disabled={isUnavailable}
+              >
+                {barber.name} {barber.specialty ? `- ${barber.specialty}` : ""}
+                {isUnavailable ? " (No disponible)" : ""}
+              </option>
+            );
+          })}
         </select>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 4 }}>
+          {checkingAvailability && timeStr && (
+            <small style={{ 
+              color: "var(--color-wood-medium)", 
+              fontStyle: "italic",
+              fontWeight: 500 
+            }}>
+              ⏳ Verificando disponibilidad...
+            </small>
+          )}
+          {!checkingAvailability && timeStr && unavailableBarbers.size > 0 && (
+            <small style={{ 
+              color: "var(--color-wood-dark)", 
+              fontWeight: 500 
+            }}>
+              ℹ️ Barberos en gris no disponibles en este horario
+            </small>
+          )}
+        </div>
       </label>
 
       <label>
@@ -231,11 +380,19 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
             required
           >
             <option value="">Selecciona una hora</option>
-            {timeSlots.map((slot) => (
-              <option key={slot.start} value={slot.start}>
-                {slot.display}
-              </option>
-            ))}
+            {timeSlots.map((slot) => {
+              const isUnavailable = unavailableSlots.has(slot.start);
+              return (
+                <option 
+                  key={slot.start} 
+                  value={slot.start}
+                  disabled={isUnavailable}
+                >
+                  {slot.display}
+                  {isUnavailable ? " (No disponible)" : ""}
+                </option>
+              );
+            })}
           </select>
         ) : (
           <input
@@ -245,9 +402,28 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
             required
           />
         )}
-        <small style={{ color: "var(--color-text-secondary)" }}>
-          Lun-Vie: 8:00-12:00 y 13:00-17:00 | Sáb: 8:00-20:00 | Dom: Cerrado
-        </small>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {checkingAvailability && barberId && (
+            <small style={{ 
+              color: "var(--color-wood-medium)", 
+              fontStyle: "italic",
+              fontWeight: 500 
+            }}>
+              ⏳ Verificando disponibilidad...
+            </small>
+          )}
+          {!checkingAvailability && barberId && unavailableSlots.size > 0 && (
+            <small style={{ 
+              color: "var(--color-wood-dark)", 
+              fontWeight: 500 
+            }}>
+              ℹ️ Horarios en gris no disponibles
+            </small>
+          )}
+          <small style={{ color: "var(--color-text-secondary)" }}>
+            Lun-Vie: 8:00-12:00 y 13:00-17:00 | Sáb: 8:00-20:00 | Dom: Cerrado
+          </small>
+        </div>
       </label>
 
       <label>
