@@ -132,7 +132,10 @@ const CitasList = ({ citas = [], onEdit, onDelete }) => {
                 borderLeft: "3px solid var(--color-wood-medium)",
               }}
             >
-              <strong style={{ color: "var(--color-wood-dark)" }}>Notas:</strong> {c.notes}
+              <strong style={{ color: "var(--color-wood-dark)" }}>
+                Notas:
+              </strong>{" "}
+              {c.notes}
             </div>
           )}
         </div>

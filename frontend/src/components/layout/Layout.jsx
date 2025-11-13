@@ -89,121 +89,128 @@ function Layout({ children, pageTitle }) {
         <aside
           className={`layout-sidebar ${isMobileMenuOpen ? "mobile-open" : ""}`}
         >
-        <div className="sidebar-header">
-          <span className="sidebar-logo" aria-hidden>
-            <Scissors size={24} />
-          </span>
-          <span className="sidebar-title">Barbería</span>
-        </div>
+          <div className="sidebar-header">
+            <span className="sidebar-logo" aria-hidden>
+              <Scissors size={24} />
+            </span>
+            <span className="sidebar-title">Barbería</span>
+          </div>
 
-        <nav className="sidebar-nav" aria-label="Secciones">
-          <button
-            className={`nav-item ${location.pathname === "/" ? "active" : ""}`}
-            onClick={() => handleNavigate("/")}
-          >
-            <span className="nav-icon" aria-hidden>
-              🏠
-            </span>
-            <span className="nav-text">Inicio</span>
-          </button>
-          <button
-            className={`nav-item ${
-              location.pathname === "/inventario" ? "active" : ""
-            }`}
-            onClick={() => handleNavigate("/inventario")}
-          >
-            <span className="nav-icon" aria-hidden>
-              📦
-            </span>
-            <span className="nav-text">Inventario</span>
-          </button>
-          <button
-            className={`nav-item ${
-              location.pathname === "/citas" ? "active" : ""
-            }`}
-            onClick={() => handleNavigate("/citas")}
-          >
-            <span className="nav-icon" aria-hidden>
-              📅
-            </span>
-            <span className="nav-text">Citas</span>
-          </button>
-          <button
-            className={`nav-item ${
-              location.pathname === "/barberos" ? "active" : ""
-            }`}
-            onClick={() => handleNavigate("/barberos")}
-          >
-            <span className="nav-icon" aria-hidden>
-              ✂️
-            </span>
-            <span className="nav-text">Barberos</span>
-          </button>
-          <button
-            className={`nav-item ${
-              location.pathname === "/reportes" ? "active" : ""
-            }`}
-            onClick={() => handleNavigate("/reportes")}
-          >
-            <span className="nav-icon" aria-hidden>
-              📊
-            </span>
-            <span className="nav-text">Reportes</span>
-          </button>
-          {isAdmin() && (
+          <nav className="sidebar-nav" aria-label="Secciones">
             <button
               className={`nav-item ${
-                location.pathname === "/admin" ? "active" : ""
+                location.pathname === "/" ? "active" : ""
               }`}
-              onClick={() => handleNavigate("/admin")}
+              onClick={() => handleNavigate("/")}
             >
               <span className="nav-icon" aria-hidden>
-                👑
+                🏠
               </span>
-              <span className="nav-text">Admin</span>
+              <span className="nav-text">Inicio</span>
             </button>
-          )}
-        </nav>
+            <button
+              className={`nav-item ${
+                location.pathname === "/inventario" ? "active" : ""
+              }`}
+              onClick={() => handleNavigate("/inventario")}
+            >
+              <span className="nav-icon" aria-hidden>
+                📦
+              </span>
+              <span className="nav-text">Inventario</span>
+            </button>
+            <button
+              className={`nav-item ${
+                location.pathname === "/citas" ? "active" : ""
+              }`}
+              onClick={() => handleNavigate("/citas")}
+            >
+              <span className="nav-icon" aria-hidden>
+                📅
+              </span>
+              <span className="nav-text">Citas</span>
+            </button>
+            <button
+              className={`nav-item ${
+                location.pathname === "/barberos" ? "active" : ""
+              }`}
+              onClick={() => handleNavigate("/barberos")}
+            >
+              <span className="nav-icon" aria-hidden>
+                ✂️
+              </span>
+              <span className="nav-text">Barberos</span>
+            </button>
+            <button
+              className={`nav-item ${
+                location.pathname === "/reportes" ? "active" : ""
+              }`}
+              onClick={() => handleNavigate("/reportes")}
+            >
+              <span className="nav-icon" aria-hidden>
+                📊
+              </span>
+              <span className="nav-text">Reportes</span>
+            </button>
+            {isAdmin() && (
+              <button
+                className={`nav-item ${
+                  location.pathname === "/admin" ? "active" : ""
+                }`}
+                onClick={() => handleNavigate("/admin")}
+              >
+                <span className="nav-icon" aria-hidden>
+                  👑
+                </span>
+                <span className="nav-text">Admin</span>
+              </button>
+            )}
+          </nav>
 
-        <div className="sidebar-footer">
-          <button onClick={handleLogout} className="logout-button">
-            <LogOut size={20} />
-            <span className="logout-text">Cerrar Sesión</span>
-          </button>
-        </div>
-      </aside>
+          <div className="sidebar-footer">
+            <button onClick={handleLogout} className="logout-button">
+              <LogOut size={20} />
+              <span className="logout-text">Cerrar Sesión</span>
+            </button>
+          </div>
+        </aside>
       )}
 
       <main className={`layout-main ${!showSidebar ? "no-sidebar" : ""}`}>
         <div className="layout-content">
           {!showSidebar && (
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              marginBottom: '1.5rem',
-              padding: '1rem 1.25rem',
-              background: 'linear-gradient(135deg, var(--color-wood-surface) 0%, #ffffff 100%)',
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(101, 67, 33, 0.15)',
-              border: '2px solid var(--color-wood-light)'
-            }}>
-              <h1 style={{ 
-                margin: 0, 
-                fontSize: '1.75rem', 
-                color: 'var(--color-wood-dark)',
-                fontWeight: 700,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}>
-                <span style={{ fontSize: '2rem' }}>📅</span>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "1.5rem",
+                padding: "1rem 1.25rem",
+                background:
+                  "linear-gradient(135deg, var(--color-wood-surface) 0%, #ffffff 100%)",
+                borderRadius: "12px",
+                boxShadow: "0 4px 12px rgba(101, 67, 33, 0.15)",
+                border: "2px solid var(--color-wood-light)",
+              }}
+            >
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: "1.75rem",
+                  color: "var(--color-wood-dark)",
+                  fontWeight: 700,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                <span style={{ fontSize: "2rem" }}>📅</span>
                 Mis Citas
               </h1>
-              <button 
-                onClick={handleLogout} 
+              <button
+                onClick={handleLogout}
                 className="btn btn-ghost"
-                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
               >
                 <LogOut size={18} />
                 Cerrar Sesión

@@ -105,8 +105,8 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
         } else {
           // Filtrar la cita actual si estamos editando
           const filtered = initialData?.id
-            ? (data || []).filter(apt => apt.id !== initialData.id)
-            : (data || []);
+            ? (data || []).filter((apt) => apt.id !== initialData.id)
+            : data || [];
           setAppointmentsOfDay(filtered);
         }
       } catch (err) {
@@ -147,9 +147,11 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
           const localDate = new Date(`${dateStr}T${slot.start}:00`);
           // Convertir a formato ISO pero ajustando el offset de zona horaria
           const tzOffset = localDate.getTimezoneOffset() * 60000; // offset en milisegundos
-          const localISOTime = new Date(localDate.getTime() - tzOffset).toISOString().slice(0, -1);
+          const localISOTime = new Date(localDate.getTime() - tzOffset)
+            .toISOString()
+            .slice(0, -1);
           const startAtISO = `${dateStr}T${slot.start}:00`;
-          
+
           // Verificar disponibilidad del barbero en su horario de trabajo
           const { data: isAvailable } = await checkBarberAvailability(
             barberId,
@@ -157,7 +159,7 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
           );
 
           // Verificar conflictos con citas existentes
-          const hasConflict = appointmentsOfDay.some(apt => {
+          const hasConflict = appointmentsOfDay.some((apt) => {
             const aptTime = new Date(apt.start_at).toTimeString().slice(0, 5);
             return apt.barber_id === barberId && aptTime === slot.start;
           });
@@ -202,7 +204,7 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
           );
 
           // Verificar conflictos con citas existentes
-          const hasConflict = appointmentsOfDay.some(apt => {
+          const hasConflict = appointmentsOfDay.some((apt) => {
             const aptTime = new Date(apt.start_at).toTimeString().slice(0, 5);
             return apt.barber_id === barber.id && aptTime === timeStr;
           });
@@ -259,7 +261,9 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
       );
 
       if (!isAvailable || hasConflict) {
-        setError("El horario seleccionado ya no está disponible. Por favor selecciona otro.");
+        setError(
+          "El horario seleccionado ya no está disponible. Por favor selecciona otro."
+        );
         setSubmitting(false);
         return;
       }
@@ -301,8 +305,8 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
           {barbers.map((barber) => {
             const isUnavailable = unavailableBarbers.has(barber.id);
             return (
-              <option 
-                key={barber.id} 
+              <option
+                key={barber.id}
                 value={barber.id}
                 disabled={isUnavailable}
               >
@@ -312,21 +316,32 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
             );
           })}
         </select>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 4 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 4,
+            marginTop: 4,
+          }}
+        >
           {checkingAvailability && timeStr && (
-            <small style={{ 
-              color: "var(--color-wood-medium)", 
-              fontStyle: "italic",
-              fontWeight: 500 
-            }}>
+            <small
+              style={{
+                color: "var(--color-wood-medium)",
+                fontStyle: "italic",
+                fontWeight: 500,
+              }}
+            >
               ⏳ Verificando disponibilidad...
             </small>
           )}
           {!checkingAvailability && timeStr && unavailableBarbers.size > 0 && (
-            <small style={{ 
-              color: "var(--color-wood-dark)", 
-              fontWeight: 500 
-            }}>
+            <small
+              style={{
+                color: "var(--color-wood-dark)",
+                fontWeight: 500,
+              }}
+            >
               ℹ️ Barberos en gris no disponibles en este horario
             </small>
           )}
@@ -383,8 +398,8 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
             {timeSlots.map((slot) => {
               const isUnavailable = unavailableSlots.has(slot.start);
               return (
-                <option 
-                  key={slot.start} 
+                <option
+                  key={slot.start}
                   value={slot.start}
                   disabled={isUnavailable}
                 >
@@ -404,19 +419,23 @@ const CitaForm = ({ initialData = null, onSave, onCancel }) => {
         )}
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {checkingAvailability && barberId && (
-            <small style={{ 
-              color: "var(--color-wood-medium)", 
-              fontStyle: "italic",
-              fontWeight: 500 
-            }}>
+            <small
+              style={{
+                color: "var(--color-wood-medium)",
+                fontStyle: "italic",
+                fontWeight: 500,
+              }}
+            >
               ⏳ Verificando disponibilidad...
             </small>
           )}
           {!checkingAvailability && barberId && unavailableSlots.size > 0 && (
-            <small style={{ 
-              color: "var(--color-wood-dark)", 
-              fontWeight: 500 
-            }}>
+            <small
+              style={{
+                color: "var(--color-wood-dark)",
+                fontWeight: 500,
+              }}
+            >
               ℹ️ Horarios en gris no disponibles
             </small>
           )}

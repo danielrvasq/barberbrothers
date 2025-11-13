@@ -3,6 +3,7 @@
 ## 📋 Resumen
 
 El sistema ahora implementa restricciones de navegación basadas en roles:
+
 - **Usuarios normales (role = 'user')**: Solo acceso a la pantalla de Citas
 - **Administradores (role = 'admin')**: Acceso completo a todas las secciones
 
@@ -13,6 +14,7 @@ El sistema ahora implementa restricciones de navegación basadas en roles:
 ### Usuario Normal (`role = 'user'`)
 
 **Permisos:**
+
 - ✅ Ver sus propias citas
 - ✅ Crear nuevas citas
 - ✅ Editar sus citas programadas
@@ -20,6 +22,7 @@ El sistema ahora implementa restricciones de navegación basadas en roles:
 - ✅ Cerrar sesión
 
 **Restricciones:**
+
 - ❌ No puede acceder a Dashboard/Inicio
 - ❌ No puede acceder a Inventario
 - ❌ No puede acceder a Barberos
@@ -28,6 +31,7 @@ El sistema ahora implementa restricciones de navegación basadas en roles:
 - ❌ No ve el menú de navegación lateral (sidebar)
 
 **Experiencia de Usuario:**
+
 - Al iniciar sesión, es redirigido automáticamente a `/citas`
 - Ve solo una barra superior con:
   - Título: "📅 Mis Citas"
@@ -38,6 +42,7 @@ El sistema ahora implementa restricciones de navegación basadas en roles:
 ### Administrador (`role = 'admin'`)
 
 **Permisos:**
+
 - ✅ Acceso completo a todas las secciones:
   - Dashboard (Inicio)
   - Inventario (productos y servicios)
@@ -50,6 +55,7 @@ El sistema ahora implementa restricciones de navegación basadas en roles:
 - ✅ Cerrar sesión
 
 **Experiencia de Usuario:**
+
 - Al iniciar sesión, accede al Dashboard
 - Ve el menú de navegación lateral (sidebar) completo
 - Puede navegar entre todas las secciones
@@ -131,21 +137,27 @@ if (adminOnly && profile?.role !== "admin") {
 const showSidebar = isAdmin(); // Solo mostrar sidebar para admins
 
 // Sidebar solo visible para admins
-{showSidebar && (
-  <aside className="layout-sidebar">
-    {/* Menú de navegación */}
-  </aside>
-)}
+{
+  showSidebar && (
+    <aside className="layout-sidebar">{/* Menú de navegación */}</aside>
+  );
+}
 
 // Barra superior para usuarios normales
-{!showSidebar && (
-  <div style={{ /* estilos */ }}>
-    <h1>📅 Mis Citas</h1>
-    <button onClick={handleLogout}>
-      Cerrar Sesión
-    </button>
-  </div>
-)}
+{
+  !showSidebar && (
+    <div
+      style={
+        {
+          /* estilos */
+        }
+      }
+    >
+      <h1>📅 Mis Citas</h1>
+      <button onClick={handleLogout}>Cerrar Sesión</button>
+    </div>
+  );
+}
 ```
 
 ### 5. Estilos CSS
@@ -201,8 +213,8 @@ Después del primer login, ejecutar en Supabase SQL Editor:
 SELECT id, email, role FROM profiles;
 
 -- Asignar rol de administrador
-UPDATE profiles 
-SET role = 'admin' 
+UPDATE profiles
+SET role = 'admin'
 WHERE email = 'admin@example.com';
 ```
 
@@ -210,7 +222,7 @@ WHERE email = 'admin@example.com';
 
 ```sql
 -- Ver todos los usuarios y sus roles
-SELECT 
+SELECT
   id,
   email,
   full_name,
@@ -224,13 +236,13 @@ ORDER BY created_at DESC;
 
 ```sql
 -- Degradar de admin a user
-UPDATE profiles 
-SET role = 'user' 
+UPDATE profiles
+SET role = 'user'
 WHERE email = 'usuario@example.com';
 
 -- Promover de user a admin
-UPDATE profiles 
-SET role = 'admin' 
+UPDATE profiles
+SET role = 'admin'
 WHERE email = 'usuario@example.com';
 ```
 
@@ -284,11 +296,13 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 ### Casos de Prueba - Usuario Normal
 
 1. **Login y redirección**
+
    - ✅ Al hacer login, debe ser redirigido a `/citas`
    - ✅ No debe ver el sidebar
    - ✅ Debe ver barra superior con "Mis Citas" y "Cerrar Sesión"
 
 2. **Intentos de navegación directa**
+
    - ✅ URL: `/` → Redirige a `/citas`
    - ✅ URL: `/inventario` → Redirige a `/citas`
    - ✅ URL: `/barberos` → Redirige a `/citas`
@@ -297,6 +311,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
    - ✅ URL: `/ruta-inexistente` → Redirige a `/citas`
 
 3. **Funcionalidad de citas**
+
    - ✅ Puede ver sus propias citas
    - ✅ Puede crear nuevas citas
    - ✅ Puede editar citas programadas
@@ -310,11 +325,13 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 ### Casos de Prueba - Administrador
 
 1. **Login y redirección**
+
    - ✅ Al hacer login, accede al Dashboard (`/`)
    - ✅ Ve el sidebar completo con todas las opciones
    - ✅ Sidebar funciona en hover (se expande)
 
 2. **Navegación completa**
+
    - ✅ Puede acceder a `/inventario`
    - ✅ Puede acceder a `/citas`
    - ✅ Puede acceder a `/barberos`
@@ -334,17 +351,19 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 // En la consola del navegador (después de login)
 
 // 1. Verificar rol actual
-const { data: { user } } = await supabase.auth.getUser();
+const {
+  data: { user },
+} = await supabase.auth.getUser();
 const { data: profile } = await supabase
-  .from('profiles')
-  .select('role')
-  .eq('id', user.id)
+  .from("profiles")
+  .select("role")
+  .eq("id", user.id)
   .single();
-console.log('Rol actual:', profile.role);
+console.log("Rol actual:", profile.role);
 
 // 2. Verificar redirecciones
-const routes = ['/', '/inventario', '/barberos', '/reportes', '/admin'];
-routes.forEach(route => {
+const routes = ["/", "/inventario", "/barberos", "/reportes", "/admin"];
+routes.forEach((route) => {
   console.log(`Navegando a ${route}...`);
   window.location.href = route;
   // Verificar si redirige a /citas (para users) o permite acceso (para admins)
@@ -403,11 +422,13 @@ routes.forEach(route => {
 ### Capas de Protección
 
 1. **Frontend (React Router)**
+
    - Redirecciones automáticas basadas en rol
    - Componente `ProtectedRoute` con validación
    - Layout adaptativo según rol
 
 2. **Backend (Supabase RLS)**
+
    - Políticas de seguridad a nivel de base de datos
    - Los usuarios solo ven/modifican sus propios datos
    - Admins tienen acceso completo mediante función `is_admin()`
@@ -432,17 +453,20 @@ routes.forEach(route => {
 ### Archivos Modificados
 
 1. **`frontend/src/App.jsx`**
+
    - Agregado `isAdmin()` en destructuring de `useAuth`
    - Redirecciones condicionales en rutas `/`, `/login`, `*`
    - Prop `adminOnly` en rutas protegidas
 
 2. **`frontend/src/components/layout/Layout.jsx`**
+
    - Variable `showSidebar` basada en `isAdmin()`
    - Sidebar y botón móvil condicionales
    - Barra superior para usuarios normales
    - Clase `no-sidebar` en `layout-main`
 
 3. **`frontend/src/components/layout/Layout.css`**
+
    - Estilos para `.layout-main.no-sidebar`
    - Centrado y ancho máximo para vista sin sidebar
 
@@ -464,18 +488,22 @@ routes.forEach(route => {
 ### Mejoras Futuras
 
 1. **Roles Adicionales**
+
    - `barber`: Barberos pueden ver sus citas asignadas
    - `receptionist`: Recepcionistas pueden gestionar citas de todos
 
 2. **Permisos Granulares**
+
    - Tabla `permissions` con permisos específicos
    - Relación many-to-many entre roles y permisos
 
 3. **Notificaciones**
+
    - Notificar a barberos cuando se crea/cancela una cita
    - Recordatorios automáticos para usuarios
 
 4. **Logs de Auditoría**
+
    - Registrar intentos de acceso no autorizado
    - Historial de cambios en permisos
 
