@@ -256,14 +256,51 @@ export default function LandingPage() {
               <li>Estadísticas generales</li>
               <li>Exportar a PDF/CSV</li>
             </ul>
-            <button
-              className="btn-primary"
-              style={{ width: "100%" }}
-              onClick={() => navigate("/reportes")}
-            >
-              Ver Reportes
-            </button>
+            {isAdmin() ? (
+              <button
+                className="btn-primary"
+                style={{ width: "100%" }}
+                onClick={() => navigate("/reportes")}
+              >
+                Ver Reportes
+              </button>
+            ) : (
+              <button
+                disabled
+                style={{ width: "100%", opacity: 0.6, cursor: "not-allowed" }}
+              >
+                Solo Admin
+              </button>
+            )}
           </div>
+
+          {/* Usuarios */}
+          {isAdmin() && (
+            <div
+              className="panel"
+              style={{ padding: "clamp(16px, 3vw, 20px)" }}
+            >
+              <div style={{ fontSize: 36, marginBottom: 8 }}>👥</div>
+              <h4 style={{ fontSize: 16, marginBottom: 8 }}>Usuarios</h4>
+              <ul
+                className="muted"
+                style={{ listStyle: "none", padding: 0, margin: "0 0 12px 0" }}
+              >
+                <li>Ver todos los usuarios</li>
+                <li>Editar información</li>
+                <li>Asignar roles</li>
+                <li>Búsqueda y filtros</li>
+                <li>Gestión completa</li>
+              </ul>
+              <button
+                className="btn-primary"
+                style={{ width: "100%" }}
+                onClick={() => navigate("/usuarios")}
+              >
+                Gestionar Usuarios
+              </button>
+            </div>
+          )}
 
           {/* Admin Panel */}
           {isAdmin() && (

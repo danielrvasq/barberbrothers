@@ -6,6 +6,7 @@ import CitasPage from "./pages/CitasPage";
 import BarbersPage from "./pages/BarbersPage";
 import InventoryPage from "./pages/InventoryPage";
 import ReportsPage from "./pages/ReportsPage";
+import UsersPage from "./pages/UsersPage";
 import Layout from "./components/layout/Layout";
 import UserProfile from "./components/common/UserProfile";
 import ProtectedRoute from "./components/common/ProtectedRoute";
@@ -96,6 +97,17 @@ function App() {
             <ProtectedRoute adminOnly>
               <Layout pageTitle="Reportes">
                 <ReportsPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/usuarios"
+          element={
+            <ProtectedRoute adminOnly>
+              <Layout pageTitle="Usuarios">
+                <UsersPage />
               </Layout>
             </ProtectedRoute>
           }

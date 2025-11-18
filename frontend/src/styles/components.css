@@ -17,13 +17,21 @@
   transform: scale(0.97);
 }
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-wood-medium) 0%, var(--color-wood-dark) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-wood-medium) 0%,
+    var(--color-wood-dark) 100%
+  );
   color: #fff;
   border: 2px solid var(--color-wood-dark);
   box-shadow: 0 2px 6px rgba(101, 67, 33, 0.3);
 }
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--color-wood-dark) 0%, var(--color-wood-darker) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-wood-dark) 0%,
+    var(--color-wood-darker) 100%
+  );
   box-shadow: 0 4px 10px rgba(101, 67, 33, 0.4);
 }
 .btn-secondary {
