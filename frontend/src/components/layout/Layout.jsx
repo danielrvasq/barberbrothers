@@ -152,6 +152,17 @@ function Layout({ children, pageTitle }) {
               </span>
               <span className="nav-text">Reportes</span>
             </button>
+            <button
+              className={`nav-item ${
+                location.pathname === "/usuarios" ? "active" : ""
+              }`}
+              onClick={() => handleNavigate("/usuarios")}
+            >
+              <span className="nav-icon" aria-hidden>
+                👥
+              </span>
+              <span className="nav-text">Usuarios</span>
+            </button>
             {isAdmin() && (
               <button
                 className={`nav-item ${
