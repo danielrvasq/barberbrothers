@@ -61,7 +61,9 @@ const CitasPage = () => {
 
       // Envío de correo de confirmación en background (no bloquea UX)
       if (data) {
-        fetch("/api/notify-appointment", {
+        const apiBase = import.meta.env.VITE_BACKEND_URL || ''
+        const url = apiBase ? `${apiBase}/notify-appointment` : 'http://localhost:3001/notify-appointment'
+        fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ appointment: data }),
