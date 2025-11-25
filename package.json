@@ -1,0 +1,9 @@
+{
+  "name": "barberbrothers",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Sistema de gestión para barbería",
+  "dependencies": {
+    "nodemailer": "^6.9.7"
+  }
+}

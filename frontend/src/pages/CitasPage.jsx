@@ -59,6 +59,15 @@ const CitasPage = () => {
       const { data, error } = await createCita(payload);
       if (error) throw error;
 
+      // Envío de correo de confirmación en background (no bloquea UX)
+      if (data) {
+        fetch("/api/notify-appointment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ appointment: data }),
+        }).catch((e) => console.warn("Fallo envío email cita:", e));
+      }
+
       setCitas((prev) => [data, ...prev]);
       setShowForm(false);
       setEditing(null);
