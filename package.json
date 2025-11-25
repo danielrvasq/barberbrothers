@@ -4,6 +4,7 @@
   "type": "module",
   "description": "Sistema de gestión para barbería",
   "dependencies": {
-    "nodemailer": "^6.9.7"
+    "nodemailer": "^6.9.7",
+    "@supabase/supabase-js": "^2.45.4"
   }
 }

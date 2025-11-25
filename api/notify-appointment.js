@@ -3,6 +3,7 @@
 // Body: { appointment: { id, customer_id, service, start_at, end_at? } }
 
 import nodemailer from 'nodemailer'
+import { createClient } from '@supabase/supabase-js'
 
 const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: SERVICE_ROLE_KEY, SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env
 
@@ -21,26 +22,40 @@ export default async function handler(req, res) {
       return sendJson(res, 400, { error: 'Invalid appointment payload' })
     }
 
-    // Obtener perfil del usuario
-    const profileResp = await fetch(
-      `${SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(appointment.customer_id)}&select=email,full_name`,
-      {
-        headers: {
-          apikey: SERVICE_ROLE_KEY,
-          Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
-        },
+    // Obtener email del usuario: intentar profiles, y si falta, usar Admin API (auth.users)
+    let email = null
+    let full_name = ''
+
+    // 1) Intentar profiles vía REST
+    try {
+      const profileResp = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(appointment.customer_id)}&select=email,full_name`,
+        {
+          headers: { apikey: SERVICE_ROLE_KEY, Authorization: `Bearer ${SERVICE_ROLE_KEY}` },
+        }
+      )
+      if (profileResp.ok) {
+        const profiles = await profileResp.json()
+        const p = profiles?.[0]
+        email = p?.email || null
+        full_name = p?.full_name || ''
       }
-    )
-    if (!profileResp.ok) {
-      return sendJson(res, 404, { error: 'Profile not found', detail: await profileResp.text() })
+    } catch (_) {}
+
+    // 2) Si no hay email en profiles, usar Admin API para leer auth.users
+    if (!email) {
+      const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
+      const { data: userData, error: userErr } = await supabaseAdmin.auth.admin.getUserById(appointment.customer_id)
+      if (userErr || !userData?.user) {
+        return sendJson(res, 404, { error: 'User not found in auth.users' })
+      }
+      email = userData.user.email
+      full_name = userData.user.user_metadata?.name || userData.user.user_metadata?.full_name || ''
     }
-    const profiles = await profileResp.json()
-    const profile = profiles[0]
-    if (!profile?.email) return sendJson(res, 404, { error: 'Profile email missing' })
 
     const fechaLocal = new Date(appointment.start_at).toLocaleString()
     const html = `
-      <p>Hola ${profile.full_name || ''},</p>
+      <p>Hola ${full_name || ''},</p>
       <p>Tu cita para <strong>${appointment.service}</strong> fue agendada.</p>
       <p>Fecha/hora: ${fechaLocal}</p>
       ${appointment.end_at ? `<p>Fin estimado: ${new Date(appointment.end_at).toLocaleString()}</p>` : ''}
@@ -60,7 +75,7 @@ export default async function handler(req, res) {
 
     await transporter.sendMail({
       from: `"Barbería Citas" <${SMTP_USER}>`,
-      to: profile.email,
+      to: email,
       subject: `Confirmación cita: ${appointment.service}`,
       html,
     })

@@ -9,11 +9,7 @@
   "devCommand": "npm run dev",
   "outputDirectory": "dist",
 
-  "functions": {
-    "api/**": {
-      "runtime": "nodejs18.x"
-    }
-  },
+  
   "rewrites": [
     {
       "source": "/((?!api).*)",
