@@ -62,7 +62,7 @@ const CitasPage = () => {
       // Envío de correo de confirmación en background (no bloquea UX)
       if (data) {
         const apiBase = import.meta.env.VITE_BACKEND_URL || ''
-        const url = apiBase ? `${apiBase}/notify-appointment` : 'http://localhost:3001/notify-appointment'
+        const url = apiBase ? `${apiBase}/notify-appointment` : 'https://barberbrothers.onrender.com'
         fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
